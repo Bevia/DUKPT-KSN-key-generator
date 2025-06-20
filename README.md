@@ -1,4 +1,3 @@
-
 # DUKPT Key Generator Tool
 
 A command-line tool for generating DUKPT (Derived Unique Key Per Transaction) keys, specifically designed for secure key management in financial cryptographic operations. This tool supports generating Initial PIN Encryption Keys (IPEK) from either a Base Derivation Key (BDK) or three partial key components.
@@ -18,7 +17,14 @@ The DUKPT Key Generator implements the ANSI X9.24 standard for retail financial 
 - Gradle build tool
 
 ## Building the Project
-bash ./gradlew build
+# Clean the project
+./gradlew clean
+
+# Build the project
+./gradlew build
+
+# List the contents of the build/libs directory to verify the JAR exists
+ls -l build/libs/
 
 ## Usage
 
@@ -118,4 +124,3 @@ src/ ├── main/ │ └── kotlin/ │ └── org/ │ └── core
 
 - ANSI X9.24-1:2009 Retail Financial Services Symmetric Key Management
 - [Other relevant references will be added as project builds]
-

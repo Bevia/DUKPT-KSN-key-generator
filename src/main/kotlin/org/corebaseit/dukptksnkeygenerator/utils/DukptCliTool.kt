@@ -1,7 +1,10 @@
+package org.corebaseit.dukptksnkeygenerator.utils
 
-package org.corebaseit.dukptksnkeygenerator
-
-import kotlinx.cli.*
+import kotlinx.cli.ArgParser
+import kotlinx.cli.ArgType
+import kotlinx.cli.required
+import org.corebaseit.dukptksnkeygenerator.Dukpt
+import org.corebaseit.dukptksnkeygenerator.utils.KeyUtils
 
 class DukptCliTool(private val args: Array<String>) {
     private val parser = ArgParser("dukpt-cli")
