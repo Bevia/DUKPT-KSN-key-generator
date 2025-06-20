@@ -1,3 +1,32 @@
+
+# DUKPT Key Generator Tool
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+A robust and secure implementation of the DUKPT (Derived Unique Key Per Transaction) key management scheme for financial cryptographic operations. Built with Kotlin and Spring Boot, this tool provides both a key generation utility and a transaction simulator that follows the ANSI X9.24-1:2009 standard.
+
+## Key Features
+
+- **Secure Key Generation**: Generate Initial PIN Encryption Keys (IPEK) using either:
+    - Single Base Derivation Key (BDK)
+    - Three-component key parts (enhanced security)
+- **Transaction Simulation**: Test PIN encryption/decryption scenarios
+- **Standards Compliant**: Implements ANSI X9.24 specifications
+- **Comprehensive Validation**: Built-in hex format and key length validation
+- **Security-First Design**: Follows cryptographic best practices
+
+## Quick Start
+
+```bash
+# Build the project
+./gradlew build
+
+# Run in key generation mode
+java -jar build/libs/DUKPT-KSN-key-generator-0.0.1-SNAPSHOT-boot.jar
+
+# Run in simulation mode
+java -jar build/libs/DUKPT-KSN-key-generator-0.0.1-SNAPSHOT-boot.jar --simulate
+```
 # DUKPT Key Generator Tool
 
 A command-line tool for generating DUKPT (Derived Unique Key Per Transaction) keys, specifically designed for secure key management in financial cryptographic operations. This tool supports generating Initial PIN Encryption Keys (IPEK) from either a Base Derivation Key (BDK) or three partial key components.
