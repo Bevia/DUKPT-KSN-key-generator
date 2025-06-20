@@ -116,9 +116,24 @@ src/ ├── main/ │ └── kotlin/ │ └── org/ │ └── core
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+
 ## License
 
-[Add your chosen license here]
+Copyright (c) 2024 CoreBaseIt
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+This project is maintained and distributed by CoreBaseIt.
 
 ## References
 
