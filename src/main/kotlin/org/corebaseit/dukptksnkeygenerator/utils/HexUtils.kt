@@ -1,4 +1,4 @@
-package org.corebaseit.dukptksnkeygenerator
+package org.corebaseit.dukptksnkeygenerator.utils
 
 object HexUtils {
     fun hexToBytes(hex: String): ByteArray {

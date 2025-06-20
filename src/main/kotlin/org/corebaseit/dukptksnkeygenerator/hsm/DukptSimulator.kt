@@ -1,7 +1,7 @@
 package org.corebaseit.dukptksnkeygenerator.hsm
 
 import org.corebaseit.dukptksnkeygenerator.Dukpt
-import org.corebaseit.dukptksnkeygenerator.HexUtils
+import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 import org.corebaseit.dukptksnkeygenerator.HsmSimulator
 import org.corebaseit.dukptksnkeygenerator.TerminalSimulator
 

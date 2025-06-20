@@ -1,4 +1,4 @@
-package org.corebaseit.dukptksnkeygenerator
+package org.corebaseit.dukptksnkeygenerator.utils
 
 object KeyUtils {
     fun combinePartialKeys(key1: ByteArray, key2: ByteArray, key3: ByteArray): ByteArray {

@@ -1,7 +1,7 @@
 package org.corebaseit.dukptksnkeygenerator.terminal
 
 import org.corebaseit.dukptksnkeygenerator.Dukpt
-import org.corebaseit.dukptksnkeygenerator.HexUtils
+import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 
 object PinBlockUtil {
     fun createPinBlock(pin: String, pan: String): ByteArray {

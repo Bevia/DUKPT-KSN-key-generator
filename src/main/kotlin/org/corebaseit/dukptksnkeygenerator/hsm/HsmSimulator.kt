@@ -1,6 +1,7 @@
 package org.corebaseit.dukptksnkeygenerator
 
 import org.corebaseit.dukptksnkeygenerator.encryption.TripleDesUtil
+import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 
 class HsmSimulator(private val bdk: ByteArray) {
     fun decryptPin(encryptedPin: ByteArray, ksn: ByteArray, pan: String): String {
