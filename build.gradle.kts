@@ -34,6 +34,22 @@ kotlin {
     }
 }
 
+springBoot {
+    mainClass.set("org.corebaseit.dukptksnkeygenerator.DukptApplicationKt")
+}
+
+tasks.bootJar {
+    archiveClassifier.set("boot")
+    manifest {
+        attributes["Start-Class"] = "org.corebaseit.dukptksnkeygenerator.DukptApplicationKt"
+    }
+    enabled = true
+}
+
+tasks.jar {
+    enabled = false
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
