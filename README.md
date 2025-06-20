@@ -24,7 +24,7 @@ bash ./gradlew build
 
 ### Option 1: Using Three Partial Keys (Recommended)
 
-This is the more secure method where the BDK is generated from three separate components:
+### This is the more secure method where the BDK is generated from three separate components:
 bash java -jar dukpt-generator.jar
 -k1 <partial-key-1>
 -k2 <partial-key-2>
