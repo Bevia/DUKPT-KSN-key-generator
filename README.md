@@ -26,18 +26,18 @@ bash ./gradlew build
 
 ### This is the more secure method where the BDK is generated from three separate components:
 bash java -jar dukpt-generator.jar
--k1 <partial-key-1>
--k2 <partial-key-2>
--k3 <partial-key-3>
--k
+- k1 <partial-key-1>
+- k2 <partial-key-2>
+- k3 <partial-key-3>
+- k
 
 
 Example:
 bash java -jar dukpt-generator.jar
--k1 0123456789ABCDEF0123456789ABCDEF
--k2 FEDCBA9876543210FEDCBA9876543210
--k3 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA00
--k 0123456789ABCDEF0123
+- k1 0123456789ABCDEF0123456789ABCDEF
+- k2 FEDCBA9876543210FEDCBA9876543210
+- k3 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA00
+- k 0123456789ABCDEF0123
 
 
 
@@ -117,5 +117,5 @@ src/ ├── main/ │ └── kotlin/ │ └── org/ │ └── core
 ## References
 
 - ANSI X9.24-1:2009 Retail Financial Services Symmetric Key Management
-- [Add other relevant references]
+- [Other relevant references will be added as project builds]
 
