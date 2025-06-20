@@ -26,9 +26,9 @@ bash ./gradlew build
 
 ### This is the more secure method where the BDK is generated from three separate components:
 bash java -jar dukpt-generator.jar
-- k1<partial-key-1>
-- k2<partial-key-2>
-- k3<partial-key-3>
+- k1 <partial-key-1>
+- k2 <partial-key-2>
+- k3 <partial-key-3>
 - k
 
 
