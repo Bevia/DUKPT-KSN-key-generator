@@ -1,8 +1,6 @@
 package org.corebaseit.dukptksnkeygenerator.transactionsimulator
 
-import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.EMVTags
 import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.EMVTransactionBuilder
-import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.TLVBuilder
 import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 
 class TransactionTestRunner {
