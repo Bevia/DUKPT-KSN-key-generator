@@ -1,6 +1,7 @@
 package org.corebaseit.dukptksnkeygenerator.transactionsimulator
 
 import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.EMVTransactionBuilder
+import org.corebaseit.dukptksnkeygenerator.transactionsimulator.iso.Iso8583Message
 import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 
 class TransactionTestRunner {
@@ -9,31 +10,36 @@ class TransactionTestRunner {
         val baseKSN = HexUtils.hexToBytes("FFFF9876543210E00000")
 
         val engine = DukptEngine(bdk)
-        val simulator = TransactionSimulator(engine, baseKSN)
-
         val pan = "4000000000000002"
-        val clearPinBlock = HexUtils.hexToBytes("041273FE98AB7654") // Example block
+        val clearPinBlock = HexUtils.hexToBytes("041273FE98AB7654") // example PIN block
 
-        val transaction = simulator.simulateTransaction(pan, clearPinBlock)
+        val ksn = engine.nextKSN(baseKSN)
+        val derivedKey = engine.deriveKey(ksn)
+        val encryptedPinBlock = engine.encryptData(derivedKey, clearPinBlock)
 
-        println("PAN: ${transaction.cardPAN}")
-        println("KSN: ${HexUtils.bytesToHex(transaction.ksnUsed)}")
-        println("Derived Key: ${HexUtils.bytesToHex(transaction.derivedKey)}")
-        println("Encrypted PIN Block: ${HexUtils.bytesToHex(transaction.encryptedPinBlock)}")
+        val emvBuilder = EMVTransactionBuilder().apply {
+            amount = "000000050000" // 50.00 EUR
+            currencyCode = "0978"
+            aip = "1800"
+        }
+
+        val iso = Iso8583Message().apply {
+            this.pan = pan
+            this.amount = "000000050000"
+            this.field52 = encryptedPinBlock
+            this.field55 = emvBuilder.buildField55()
+        }
+
+        println("\n==== Simulated EMV Transaction ====")
+        println("KSN: ${HexUtils.bytesToHex(ksn)}")
+        println("Derived Key: ${HexUtils.bytesToHex(derivedKey)}")
+        println("Encrypted PIN Block: ${HexUtils.bytesToHex(encryptedPinBlock)}")
+        iso.printMessage()
     }
 }
+
 
 fun main() {
     val runner = TransactionTestRunner()
     runner.runTest()
-
-    val emvBuilder = EMVTransactionBuilder().apply {
-        amount = "000000050000"        // 50.00
-        currencyCode = "0978"          // EUR
-        aip = "1800"                   // Supports CVM + terminal risk
-    }
-
-    val field55Hex = emvBuilder.buildField55Hex()
-    println("Field 55 (EMV): $field55Hex")
-
 }
