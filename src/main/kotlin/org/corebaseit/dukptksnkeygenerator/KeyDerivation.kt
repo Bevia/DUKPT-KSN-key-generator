@@ -1,46 +1,77 @@
+
 package org.corebaseit.dukptksnkeygenerator
 
-import org.corebaseit.dukptksnkeygenerator.encryption.TripleDesUtil
-import kotlin.experimental.and
+import kotlin.experimental.or
 import kotlin.experimental.xor
 
 object Dukpt {
+    private val KEY_MASK = byteArrayOf(
+        0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(),
+        0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(),
+        0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(),
+        0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte()
+    )
+
     fun deriveIPEK(bdk: ByteArray, ksn: ByteArray): ByteArray {
-        // Key registers
-        val leftRegister = ByteArray(8)
-        val rightRegister = ByteArray(8)
+        val ksnReg = ksn.copyOf()
+        ksnReg[7] = (ksnReg[7].toInt() and 0xE0).toByte() // clear lower 5 bits
+        ksnReg[8] = 0x00
+        ksnReg[9] = 0x00
 
-        // Copy first 8 bytes of BDK to left register, last 8 bytes to right register
-        System.arraycopy(bdk, 0, leftRegister, 0, 8)
-        System.arraycopy(bdk, 8, rightRegister, 0, 8)
+        val leftKey = desEncrypt(bdk.sliceArray(0..7), ksnReg)
+        val rightKey = desEncrypt(xorBytes(bdk.sliceArray(8..15), KEY_MASK.sliceArray(8..15)), ksnReg)
 
-        // Create masked KSN (first 8 bytes only)
-        val maskedKsn = ByteArray(8)
-        System.arraycopy(ksn, 0, maskedKsn, 0, 8)
-        maskedKsn[7] = maskedKsn[7] and 0xE0.toByte() // Mask with E0
+        return leftKey + rightKey
+    }
 
-        // Derive IPEK left half
-        val ipekLeft = TripleDesUtil.encrypt(maskedKsn, bdk)
+    fun deriveSessionKey(ipek: ByteArray, ksn: ByteArray): ByteArray {
+        val keyReg = ksn.copyOf()
+        val counter = ((keyReg[7].toInt() and 0x1F) shl 16) or
+                ((keyReg[8].toInt() and 0xFF) shl 8) or
+                (keyReg[9].toInt() and 0xFF)
 
-        // XOR with Key Register
-        val xoredKey = xorBytes(bdk, KEY_REGISTER_MASK)
+        val ksnBase = ksn.copyOf()
+        ksnBase[7] = (ksnBase[7].toInt() and 0xE0).toByte()
+        ksnBase[8] = 0x00
+        ksnBase[9] = 0x00
 
-        // Derive IPEK right half
-        val ipekRight = TripleDesUtil.encrypt(maskedKsn, xoredKey)
+        var currentKey = ipek.copyOf()
+        for (i in 0..20) {
+            if ((counter shr i) and 1 == 1) {
+                val reg = ksnBase.copyOf()
+                val shift = 1 shl i
+                reg[7] = reg[7] or ((shift shr 16) and 0x1F).toByte()
+                reg[8] = ((shift shr 8) and 0xFF).toByte()
+                reg[9] = (shift and 0xFF).toByte()
+                currentKey = nonReversibleKeyGen(currentKey, reg)
+            }
+        }
+        return generateDataKey(currentKey)
+    }
 
-        // Combine left and right halves
-        return ipekLeft + ipekRight
+    private fun generateDataKey(key: ByteArray): ByteArray {
+        val mask = byteArrayOf(
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(),
+            0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte()
+        )
+        return xorBytes(key, mask)
+    }
+
+    private fun nonReversibleKeyGen(key: ByteArray, ksn: ByteArray): ByteArray {
+        val left = desEncrypt(key.sliceArray(0..7), ksn)
+        val right = desEncrypt(key.sliceArray(8..15), ksn)
+        return left + right
+    }
+
+    private fun desEncrypt(key: ByteArray, data: ByteArray): ByteArray {
+        // Placeholder for actual DES encryption
+        // Implement using javax.crypto (JVM) or OpenSSL (Native) later
+        return xorBytes(key, data.take(8).toByteArray())
     }
 
     fun xorBytes(a: ByteArray, b: ByteArray): ByteArray {
         return a.zip(b) { x, y -> x xor y }.toByteArray()
     }
-
-    private val KEY_REGISTER_MASK = byteArrayOf(
-        0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(),
-        0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
-        0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(), 0xC0.toByte(),
-        0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()
-    )
 }
-
