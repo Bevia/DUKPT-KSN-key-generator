@@ -10,6 +10,12 @@ class EMVTransactionBuilder {
             .add(EMVTags.AMOUNT_AUTHORIZED, amount)
             .add(EMVTags.TRANSACTION_CURRENCY_CODE, currencyCode)
             .add(EMVTags.APPLICATION_INTERCHANGE_PROFILE, aip)
+            .add(EMVTags.TERMINAL_COUNTRY_CODE, "9F1A")
+            .add(EMVTags.TRANSACTION_DATE, "9A")
+            .add(EMVTags.TRANSACTION_TYPE, "9C")
+            .add(EMVTags.AUTH_REQUEST_CRYPTOGRAM, "9F37")
+            .add(EMVTags.TERMINAL_CAPABILITIES, "9F33")
+            .add(EMVTags.UNPREDICTABLE_NUMBER, "9F37")
             .build()
     }
 
