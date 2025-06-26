@@ -45,9 +45,9 @@ including what each one means and what role it plays during an EMV transaction.
    •	Common values:
    •	80 → ARQC (Authorization Request Cryptogram)
    •	40 → TC (Transaction Certificate)
-   •	00 → AAC (Application Authentication Cryptogram - declined)
+   •	00 → AAC (Application Authentication Cryptogram—declined)
 
-🔐 This tells the issuer how the transaction was processed by the card.
+🔐 This tells the issuer how the card processed the transaction.
 
 ⸻
 
