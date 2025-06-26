@@ -6,9 +6,6 @@
 •	During ARQC generation and issuer validation
 •	For EMV kernel debug and logs
 
-Great question, Vincent — and yes, you’re absolutely right to think of Field 55 as your EMV data sequence. Let’s break it down clearly:
-
-⸻
 
 ✅ What is Field 55?
 
