@@ -1,5 +1,8 @@
 package org.corebaseit.dukptksnkeygenerator.transactionsimulator
 
+import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.EMVTags
+import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.EMVTransactionBuilder
+import org.corebaseit.dukptksnkeygenerator.transactionsimulator.emv.TLVBuilder
 import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 
 class TransactionTestRunner {
@@ -25,4 +28,14 @@ class TransactionTestRunner {
 fun main() {
     val runner = TransactionTestRunner()
     runner.runTest()
+
+    val emvBuilder = EMVTransactionBuilder().apply {
+        amount = "000000050000"        // 50.00
+        currencyCode = "0978"          // EUR
+        aip = "1800"                   // Supports CVM + terminal risk
+    }
+
+    val field55Hex = emvBuilder.buildField55Hex()
+    println("Field 55 (EMV): $field55Hex")
+
 }
