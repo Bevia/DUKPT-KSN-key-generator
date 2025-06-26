@@ -33,7 +33,7 @@ class DukptCliTool(private val args: Array<String>) {
         try {
             parser.parse(args)
 
-            // Validate hex format for all inputs
+            // Validate the hex format for all inputs
             listOf(partialKey1, partialKey2, partialKey3, ksn).forEach { key ->
                 if (!isValidHex(key)) {
                     throw IllegalArgumentException("Invalid hex format for key: $key")
