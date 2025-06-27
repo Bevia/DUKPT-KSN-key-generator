@@ -46,6 +46,8 @@ class TransactionTestRunner {
             .add(EMVTags.CRYPTOGRAM_INFORMATION_DATA, HexUtils.bytesToHex(cid))
             .add(EMVTags.ISSUER_APPLICATION_DATA, HexUtils.bytesToHex(iad))
             .add(EMVTags.AUTH_REQUEST_CRYPTOGRAM, HexUtils.bytesToHex(arqc))
+            .add(EMVTags.TRANSACTION_DATE, "9A")
+            .add(EMVTags.TRANSACTION_TYPE, "9C")
             .build()
 
         val iso = Iso8583Message().apply {
