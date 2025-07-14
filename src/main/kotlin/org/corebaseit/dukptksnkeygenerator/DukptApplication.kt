@@ -2,7 +2,10 @@
 package org.corebaseit.dukptksnkeygenerator
 
 import org.corebaseit.dukptksnkeygenerator.hsm.DukptSimulator
+import org.corebaseit.dukptksnkeygenerator.transactionsimulator.DukptEngine
+import org.corebaseit.dukptksnkeygenerator.transactionsimulator.TransactionSimulator
 import org.corebaseit.dukptksnkeygenerator.utils.DukptCliTool
+import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -25,12 +28,45 @@ class DukptApplication : CommandLineRunner {
     }
 
     private fun runSimulation(args: Array<out String>) {
+        // Only keep arguments that DukptCliTool expects
+        val cliToolArgs = args.filterIndexed { index, arg ->
+            // Keep the key options and their values
+            listOf("-k1", "-k2", "-k3", "-k").contains(arg) ||
+                    (index > 0 && listOf("-k1", "-k2", "-k3", "-k").contains(args[index - 1]))
+        }.toTypedArray()
+
+        // Parse keys using DukptCliTool
+        val tool = DukptCliTool(cliToolArgs)
+        tool.run()
+
+        // Extract the extra simulation args (not used by DukptCliTool)
+        val pan = getOptionValueSafe(args, "--pan", "4000000000000002")
+        val pinBlockHex = getOptionValueSafe(args, "--pin", "041273FE98AB7654")
+        val clearPinBlock = HexUtils.hexToBytes(pinBlockHex)
+
+        // Get BDK for simulator
+        val engine = DukptEngine(tool.bdk)
+
+        //Start simulating
+        val simulator = TransactionSimulator(engine, tool.ksn)
+        val tx = simulator.simulateTransaction(pan, clearPinBlock)
+
+        println("===== Simulated Transaction =====")
+        println("Amount: ${tx.amount}")
+        println("Card PAN: ${tx.cardPAN}")
+        println("PIN Block (clear): ${HexUtils.bytesToHex(tx.pinBlock)}")
+        println("PIN Block (encrypted): ${HexUtils.bytesToHex(tx.encryptedPinBlock)}")
+        println("Derived Key: ${HexUtils.bytesToHex(tx.derivedKey)}")
+        println("KSN Used: ${HexUtils.bytesToHex(tx.ksnUsed)}")
+    }
+
+    /*private fun runSimulation(args: Array<out String>) {
         val pin = getOptionValueSafe(args, "--pin", "1234")
         val pan = getOptionValueSafe(args, "--pan", "4532111122223333")
 
         println("\n=== Running PIN Encryption/Decryption Simulation ===\n")
         DukptSimulator().runSimulation(pin, pan)
-    }
+    }*/
 
     private fun executeWithErrorHandling(block: () -> Unit) {
         try {
