@@ -6,6 +6,9 @@ import org.corebaseit.dukptksnkeygenerator.HsmSimulator
 import org.corebaseit.dukptksnkeygenerator.TerminalSimulator
 
 class DukptSimulator {
+
+    private fun isHex(input: String): Boolean = input.matches(Regex("^[0-9A-Fa-f]{16}$"))
+
     fun runSimulation(pin: String = "1234", pan: String = "4532111122223333") {
         try {
             // Test data with validation
@@ -37,10 +40,10 @@ class DukptSimulator {
     }
 
     private fun validatePin(pin: String) {
+        if (isHex(pin)) return // Skip validation, assume pre-encoded PIN block
         require(pin.length in 4..12) { "PIN must be between 4 and 12 digits" }
         require(pin.all { it.isDigit() }) { "PIN must contain only digits" }
     }
-
     private fun validatePan(pan: String) {
         require(pan.length >= 13) { "PAN must be at least 13 digits" }
         require(pan.all { it.isDigit() }) { "PAN must contain only digits" }

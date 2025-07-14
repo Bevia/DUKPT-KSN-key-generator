@@ -1,6 +1,8 @@
 package org.corebaseit.dukptksnkeygenerator
 
+import org.corebaseit.dukptksnkeygenerator.encryption.TripleDESEncryption
 import org.corebaseit.dukptksnkeygenerator.terminal.PinBlockUtil
+import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 
 class TerminalSimulator(
     private val ipek: ByteArray,
@@ -9,17 +11,30 @@ class TerminalSimulator(
     private var currentKsn: ByteArray = initialKsn.clone()
 
     fun encryptPin(pin: String, pan: String): Pair<ByteArray, ByteArray> {
-        // Create PIN block
-        val pinBlock = PinBlockUtil.createPinBlock(pin, pan)
+        val pinBlock: ByteArray = if (isHexPinBlock(pin)) {
+            // Already an ISO PIN block in hex format
+            HexUtils.hexToBytes(pin)
+        } else {
+            // Generate from clear PIN
+            PinBlockUtil.createPinBlock(pin, pan)
+        }
 
-        // In real implementation, derive working key from IPEK and KSN
-        // For simulation, we'll use IPEK directly
-        val encryptedPin = Dukpt.xorBytes(pinBlock, ipek)
+        // 🔍 Debug prints
+        println("PIN block (hex) ---------> ${HexUtils.bytesToHex(pinBlock)}")
+        println("PIN block size ---------> ${pinBlock.size}")
+        println("IPEK size ---------> ${ipek.size}")
 
-        // Increment KSN (simplified for demonstration)
-        incrementKsn()
+        //val encryptedPin = Dukpt.xorBytes(pinBlock, ipek)
+        //val encryptedPin = Dukpt.xorBytes(pinBlock, ipek.sliceArray(0 until 8))
+        val encryptedPin = TripleDESEncryption.encrypt(ipek, pinBlock)
+
+        incrementKsn() // move to next transaction counter
 
         return Pair(encryptedPin, currentKsn.clone())
+    }
+
+    private fun isHexPinBlock(input: String): Boolean {
+        return input.length == 16 && input.all { it in "0123456789abcdefABCDEF" }
     }
 
     private fun incrementKsn() {
