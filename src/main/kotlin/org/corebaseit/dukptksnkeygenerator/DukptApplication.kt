@@ -17,19 +17,6 @@ class DukptApplication : CommandLineRunner {
 
     private fun processCommandLineArgs(args: Array<out String>) {
         val effectiveArgs = if (args.isEmpty()) DEFAULT_ARGS else args
-
-        when {
-            effectiveArgs.contains("--simulate") -> runSimulation(effectiveArgs)
-            else -> DukptCliTool(effectiveArgs.copyOf() as Array<String>).run()
-        }
-    }
-
-    private fun runSimulation(args: Array<out String>) {
-        val pin = getOptionValueSafe(args, "--pin", "1234")
-        val pan = getOptionValueSafe(args, "--pan", "4532111122223333")
-
-        println("\n=== Running PIN Encryption/Decryption Simulation ===\n")
-        DukptSimulator().runSimulation(pin, pan)
     }
 
     private fun executeWithErrorHandling(block: () -> Unit) {
