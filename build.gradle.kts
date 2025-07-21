@@ -25,7 +25,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.6")
-
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70") // Adjust version as needed
 }
 
 kotlin {
