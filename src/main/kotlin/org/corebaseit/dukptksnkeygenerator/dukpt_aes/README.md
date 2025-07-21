@@ -20,7 +20,7 @@ PIN Digits: Actual PIN digits (e.g., 1234)
 
 Random Padding: Random values to fill the block to 16 bytes
 
-Encryption: Entire block is encrypted using AES (typically AES-128 or AES-256)
+Encryption: The Entire block is encrypted using AES (typically AES-128 or AES-256)
 
 This format avoids predictable patterns and supports stronger cryptographic practices.
 
