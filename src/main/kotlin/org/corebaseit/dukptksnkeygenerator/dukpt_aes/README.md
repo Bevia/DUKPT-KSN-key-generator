@@ -2,14 +2,14 @@
 
 ### 🔐 Here's the breakdown:
 
-Format 0 is traditionally used with TDES (Triple DES) encryption and follows the ISO 9564-1 standard 
+`Format 0` is traditionally used with `TDES (Triple DES) encryption` and follows the ISO 9564-1 standard 
 for PIN block formatting. It’s widely supported but considered less secure today.
 
-Format 4 is designed specifically for AES encryption, offering stronger security. 
+`Format 4` is designed specifically for `AES encryption`, offering stronger security. 
 It uses random padding and a different structure to accommodate AES block sizes and encryption modes
 
 🔧 Format 4 Construction Overview
-Format 4 is defined in ISO 9564-1 and is designed for AES encryption. 
+`Format 4` is defined in `ISO 9564-1` and is designed for `AES encryption`. 
 It differs from older formats (like Format 0 for TDES) by using random padding 
 and a structure that aligns with AES block sizes.
 
