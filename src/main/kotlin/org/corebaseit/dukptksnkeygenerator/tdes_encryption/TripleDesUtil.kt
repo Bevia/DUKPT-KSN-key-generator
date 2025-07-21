@@ -1,4 +1,4 @@
-package org.corebaseit.dukptksnkeygenerator.encryption
+package org.corebaseit.dukptksnkeygenerator.tdes_encryption
 
 import javax.crypto.Cipher
 import javax.crypto.SecretKey

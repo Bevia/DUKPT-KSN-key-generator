@@ -1,6 +1,6 @@
 package org.corebaseit.dukptksnkeygenerator.transactionsimulator
 
-import org.corebaseit.dukptksnkeygenerator.encryption.TripleDESEncryption
+import org.corebaseit.dukptksnkeygenerator.tdes_encryption.TripleDESEncryption
 import org.corebaseit.dukptksnkeygenerator.terminal.PinBlockUtil
 import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
 

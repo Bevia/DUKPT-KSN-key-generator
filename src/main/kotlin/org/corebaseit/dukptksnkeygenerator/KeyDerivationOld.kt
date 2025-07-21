@@ -1,6 +1,6 @@
 package org.corebaseit.dukptksnkeygenerator
 
-import org.corebaseit.dukptksnkeygenerator.encryption.TripleDesUtil
+import org.corebaseit.dukptksnkeygenerator.tdes_encryption.TripleDesUtil
 import kotlin.experimental.and
 import kotlin.experimental.xor
 
