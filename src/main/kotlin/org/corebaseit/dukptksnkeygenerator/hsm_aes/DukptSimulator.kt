@@ -1,9 +1,6 @@
-package org.corebaseit.dukptksnkeygenerator.hsm
+package org.corebaseit.dukptksnkeygenerator.hsm_aes
 
-import org.corebaseit.dukptksnkeygenerator.Dukpt
 import org.corebaseit.dukptksnkeygenerator.utils.HexUtils
-import org.corebaseit.dukptksnkeygenerator.HsmSimulator
-import org.corebaseit.dukptksnkeygenerator.TerminalSimulator
 
 class DukptSimulator {
 
@@ -11,23 +8,20 @@ class DukptSimulator {
 
     fun runSimulation(pin: String = "1234", pan: String = "4532111122223333") {
         try {
-            // Test data with validation
             val pin = pin.also { validatePin(it) }
             val pan = pan.also { validatePan(it) }
 
             printSimulationHeader(pin, pan)
 
-            // Generate BDK (in real world, this would be in the HSM)
+            println("DUKPT Format ID: 4 (AES-DUKPT)")
             val bdk = generateBdk()
-            println("BDK (in HSM): ${HexUtils.bytesToHex(bdk)}")
+            println("BDK (AES-128): ${HexUtils.bytesToHex(bdk)}")
 
-            // Generate initial KSN
             val ksn = generateInitialKsn()
-            println("Initial KSN: ${HexUtils.bytesToHex(ksn)}")
+            println("Initial KSN (Format 4): ${HexUtils.bytesToHex(ksn)}")
 
-            // Derive IPEK (in real world, this would be injected into terminal)
-            val ipek = Dukpt.deriveIPEK(bdk, ksn)
-            println("IPEK (in Terminal): ${HexUtils.bytesToHex(ipek)}")
+            val ipek = DukptAES.deriveIPEK(bdk, ksn)
+            println("IPEK (Derived using AES): ${HexUtils.bytesToHex(ipek)}")
             println()
 
             simulateTransaction(pin, pan, ipek, ksn, bdk)
@@ -40,30 +34,30 @@ class DukptSimulator {
     }
 
     private fun validatePin(pin: String) {
-        if (isHex(pin)) return // Skip validation, assume pre-encoded PIN block
+        if (isHex(pin)) return
         require(pin.length in 4..12) { "PIN must be between 4 and 12 digits" }
         require(pin.all { it.isDigit() }) { "PIN must contain only digits" }
     }
+
     private fun validatePan(pan: String) {
         require(pan.length >= 13) { "PAN must be at least 13 digits" }
         require(pan.all { it.isDigit() }) { "PAN must contain only digits" }
     }
 
     private fun printSimulationHeader(pin: String, pan: String) {
-        println("Simulating DUKPT PIN encryption/decryption")
-        println("=========================================")
-        println("PIN: ${maskPin(pin)}")  // For security, mask the PIN in logs
-        println("PAN: ${maskPan(pan)}")  // For security, mask the PAN in logs
+        println("Simulating AES-DUKPT PIN encryption/decryption")
+        println("==============================================")
+        println("PIN: ${maskPin(pin)}")
+        println("PAN: ${maskPan(pan)}")
         println()
     }
 
     private fun generateBdk(): ByteArray {
-        // In production, this would be securely stored in HSM
-        return HexUtils.hexToBytes("0123456789ABCDEF0123456789ABCDEF")
+        return HexUtils.hexToBytes("00112233445566778899AABBCCDDEEFF") // AES-128
     }
 
     private fun generateInitialKsn(): ByteArray {
-        return HexUtils.hexToBytes("FFFF9876543210E00000")
+        return HexUtils.hexToBytes("FFFF9876543210E00000000000000000") // 16-byte Format 4 KSN
     }
 
     private fun simulateTransaction(
@@ -73,32 +67,25 @@ class DukptSimulator {
         ksn: ByteArray,
         bdk: ByteArray
     ) {
-        // Create terminal and HSM simulators
-        val terminal = TerminalSimulator(ipek, ksn)
-        val hsm = HsmSimulator(bdk)
+        val terminal = AesTerminalSimulator(ipek, ksn)
+        val hsm = AesHsmSimulator(bdk)
 
-        // Simulate PIN encryption at terminal
-        println("Terminal encrypting PIN...")
+        println("Terminal encrypting PIN using AES...")
         val (encryptedPin, currentKsn) = terminal.encryptPin(pin, pan)
         println("Encrypted PIN block: ${HexUtils.bytesToHex(encryptedPin)}")
         println("Current KSN: ${HexUtils.bytesToHex(currentKsn)}")
         println()
 
-        // Simulate PIN decryption at HSM
-        println("HSM decrypting PIN...")
+        println("HSM decrypting PIN using AES...")
         val decryptedPin = hsm.decryptPin(encryptedPin, currentKsn, pan)
-        println("Decrypted PIN: ${maskPin(decryptedPin)}")  // Mask the decrypted PIN in logs
+        println("Decrypted PIN (unmasked): $decryptedPin") // Changed from masked version
 
-        // Verify the decryption
         if (pin != decryptedPin) {
             throw IllegalStateException("PIN verification failed!")
         }
     }
 
-    private fun maskPin(pin: String): String {
-        return MASK_CHARACTER.repeat(pin.length)
-    }
-
+    private fun maskPin(pin: String): String = MASK_CHARACTER.repeat(pin.length)
 
     private fun maskPan(pan: String): String {
         return when {
@@ -107,10 +94,7 @@ class DukptSimulator {
         }
     }
 
-
     companion object {
         private const val MASK_CHARACTER = "*"
-        private const val BDK_LENGTH = 16 // bytes
-        private const val KSN_LENGTH = 10 // bytes
     }
 }

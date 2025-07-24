@@ -1,8 +1,6 @@
 
 package org.corebaseit.dukptksnkeygenerator
 
-import org.corebaseit.dukptksnkeygenerator.hsm.DukptSimulator
-import org.corebaseit.dukptksnkeygenerator.utils.DukptCliTool
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
