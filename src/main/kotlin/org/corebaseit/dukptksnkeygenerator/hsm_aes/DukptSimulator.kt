@@ -6,16 +6,20 @@ class DukptSimulator {
 
     private fun isHex(input: String): Boolean = input.matches(Regex("^[0-9A-Fa-f]{16}$"))
 
-    fun runSimulation(pin: String = "1234", pan: String = "4532111122223333") {
+    fun runSimulation(
+        pin: String = "1234",
+        pan: String = "4532111122223333",
+        mode: AesMode = AesMode.AES_256_CBC // default to CBC, optionally configurable
+    ) {
         try {
-            val pin = pin.also { validatePin(it) }
-            val pan = pan.also { validatePan(it) }
+            val validatedPin = pin.also { validatePin(it) }
+            val validatedPan = pan.also { validatePan(it) }
 
-            printSimulationHeader(pin, pan)
+            printSimulationHeader(validatedPin, validatedPan)
 
             println("DUKPT Format ID: 4 (AES-DUKPT)")
-            val bdk = generateBdk()
-            println("BDK (AES-128): ${HexUtils.bytesToHex(bdk)}")
+            val bdk = generateBdk(mode)
+            println("BDK (${mode.name}): ${HexUtils.bytesToHex(bdk)}")
 
             val ksn = generateInitialKsn()
             println("Initial KSN (Format 4): ${HexUtils.bytesToHex(ksn)}")
@@ -24,8 +28,7 @@ class DukptSimulator {
             println("IPEK (Derived using AES): ${HexUtils.bytesToHex(ipek)}")
             println()
 
-           // simulateTransaction(pin, pan, ipek, ksn, bdk)
-            simulateTransaction(pin, ipek, ksn, bdk)
+            simulateTransaction(mode, validatedPin, validatedPan, ipek, ksn, bdk)
 
         } catch (e: IllegalArgumentException) {
             System.err.println("Validation Error: ${e.message}")
@@ -33,6 +36,7 @@ class DukptSimulator {
             System.err.println("Simulation Error: ${e.message}")
         }
     }
+
 
     private fun validatePin(pin: String) {
         if (isHex(pin)) return
@@ -53,15 +57,11 @@ class DukptSimulator {
         println()
     }
 
-    //@TODO: use for AES-128 + Format 4 + ECB
-    /*private fun generateBdk(): ByteArray {
-        return HexUtils.hexToBytes("00112233445566778899AABBCCDDEEFF") // AES-128
-    }*/
-
-    //@TODO: use for AES-256 + Format 4 + CBC
-    //BDK must be 32 bytes to support AES-256 (256-bit key):
-    private fun generateBdk(): ByteArray {
-        return HexUtils.hexToBytes("00112233445566778899AABBCCDDEEFF0123456789ABCDEFFEDCBA9876543210")
+    private fun generateBdk(mode: AesMode): ByteArray {
+        return when (mode) {
+            AesMode.AES_128_ECB -> HexUtils.hexToBytes("00112233445566778899AABBCCDDEEFF")
+            AesMode.AES_256_CBC -> HexUtils.hexToBytes("00112233445566778899AABBCCDDEEFF0123456789ABCDEFFEDCBA9876543210")
+        }
     }
 
 
@@ -69,7 +69,8 @@ class DukptSimulator {
         return HexUtils.hexToBytes("FFFF9876543210E00000000000000000") // 16-byte Format 4 KSN
     }
 
-   /* private fun simulateTransaction(
+    private fun simulateTransaction(
+        mode: AesMode,
         pin: String,
         pan: String,
         ipek: ByteArray,
@@ -79,45 +80,45 @@ class DukptSimulator {
         val terminal = AesTerminalSimulator(ipek, ksn)
         val hsm = AesHsmSimulator(bdk)
 
-        println("Terminal encrypting PIN using AES...")
-        val (encryptedPin, currentKsn) = terminal.encryptPin(pin, pan)
-        println("Encrypted PIN block: ${HexUtils.bytesToHex(encryptedPin)}")
-        println("Current KSN: ${HexUtils.bytesToHex(currentKsn)}")
-        println()
+        println("Terminal encrypting PIN using ${mode.name}...")
 
-        println("HSM decrypting PIN using AES...")
-        val decryptedPin = hsm.decryptPin(encryptedPin, currentKsn, pan)
-        println("Decrypted PIN (unmasked): $decryptedPin") // Changed from masked version
-
-        if (pin != decryptedPin) {
-            throw IllegalStateException("PIN verification failed!")
+        val (encryptedPin, currentKsn, iv) = when (mode) {
+            AesMode.AES_128_ECB -> {
+                val result = terminal.encryptPin(pin, mode, pan)
+                Triple(result.first, result.second, null)
+            }
+            AesMode.AES_256_CBC -> terminal.encryptPin(pin, mode)
         }
-    }*/
 
-    private fun simulateTransaction(
-        pin: String,
-        ipek: ByteArray,
-        ksn: ByteArray,
-        bdk: ByteArray
-    ) {
-        val terminal = AesTerminalSimulator(ipek, ksn)
-        val hsm = AesHsmSimulator(bdk)
-
-        println("Terminal encrypting PIN using AES...")
-        val (encryptedPin, currentKsn, iv) = terminal.encryptPin(pin)
         println("Encrypted PIN block: ${HexUtils.bytesToHex(encryptedPin)}")
         println("Current KSN: ${HexUtils.bytesToHex(currentKsn)}")
-        println("IV used for CBC: ${HexUtils.bytesToHex(iv)}")
+        iv?.let { println("IV used for CBC: ${HexUtils.bytesToHex(it)}") }
         println()
 
-        println("HSM decrypting PIN using AES...")
-        val decryptedPin = hsm.decryptPin(encryptedPin, currentKsn, iv)
+        println("HSM decrypting PIN using ${mode.name}...")
+
+        val decryptedPin = when (mode) {
+            AesMode.AES_128_ECB -> hsm.decryptPin(
+                mode = mode,
+                encrypted = encryptedPin,
+                ksn = currentKsn,
+                pan = pan
+            )
+            AesMode.AES_256_CBC -> hsm.decryptPin(
+                mode = mode,
+                encrypted = encryptedPin,
+                ksn = currentKsn,
+                iv = iv ?: throw IllegalStateException("IV must not be null for CBC mode")
+            )
+        }
+
         println("Decrypted PIN (unmasked): $decryptedPin")
 
         if (pin != decryptedPin) {
             throw IllegalStateException("PIN verification failed!")
         }
     }
+
 
 
     private fun maskPin(pin: String): String = MASK_CHARACTER.repeat(pin.length)
